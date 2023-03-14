@@ -40,7 +40,7 @@ try:
 		print("Distance:{}cm".format(distance))
 		if distance < 100:
                     time.sleep(1)
-except KeyboardInterrupt: 按下esc键退出
+except KeyboardInterrupt: #按下esc键退出
 	GPIO.cleanup()
 
 

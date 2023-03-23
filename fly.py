@@ -209,7 +209,7 @@ try:
                 send_local_ned_velocity(-1, 0, 0)
                 print("distance:",distance,"Go back!")
         time.sleep(0.5)
-except KeyboardInterrupt: #按“esc”键结束主进程
+except KeyboardInterrupt: #按“ctrl+c”键结束主进程
     running=False #通知图像声波进程结束
     t_analyse_cam.join() #等待图像程序结束
     t_analyse_distance.join()

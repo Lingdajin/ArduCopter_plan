@@ -29,7 +29,7 @@ GPIO.setup(TRIG,GPIO.OUT)
 GPIO.setup(ECHO,GPIO.IN)
 
 #dronekit-python初始化
-connection_string ='192.168.177.237:14552' 
+connection_string ='192.168.238.237:14552' 
 print('Connectingto vehicle on: %s' % connection_string) 
 vehicle =connect(connection_string, wait_ready=True,baud=921600) 
 
@@ -127,7 +127,6 @@ def cam(): #摄像机识别
             return None,None
     else:
         pass
-    cv2.imshow("frame",frame)
 
 def send_global_ned_velocity(vx, vy, vz): #全局为参考系控制无人机坐标
     msg = vehicle.message_factory.set_position_target_local_ned_encode(
@@ -170,22 +169,23 @@ def condition_yaw(direction,degrees, relative): #控制无人机航向
     vehicle.send_mavlink(msg)
     vehicle.flush()
 
-def analyse_cam(): #调用摄像头进行分析
-    while running:
-        cam()
-        
 def analyse_distance(): #调用超声波模块进行分析
     while running:
         global distance
         distance = distanceStart()
+        time.sleep(0.5)
+def analyse_cam():
+    while running:
+        cam()
+        time.sleep(0.5)
 
 #代码运行部分
-t_takeoff = threading.Thread(target=arm_and_takeoff,args=(2)) #创建起飞进程，高度2米
+t_takeoff = threading.Thread(target=arm_and_takeoff,args=(2,)) #创建起飞进程，高度2米
 t_analyse_cam = threading.Thread(target=analyse_cam) #创建图像分析进程
-t_analyse_distance = threading.Thread(target=analyse_distance) #创建声波分析进程
+t_analyse_distance = threading.Thread(target=analyse_distance)
 t_takeoff.start() #启动起飞程序
 t_analyse_cam.start() #启动图像分析程序
-t_analyse_distance.start() #启动声波分析程序
+t_analyse_distance.start()
 
 print('Open Camera')
 t_takeoff.join() #等待起飞程序结束
@@ -195,27 +195,24 @@ try:
         if center1 is not None and radius1 is not None:
             x = center1[0]-320
             y = center1[1]-240
-            if x < -10: #当红色中心位于视野中心左侧，无人机左偏航5度
+            if center1[0] < 160: #当红色中心位于视野中心左侧，无人机左偏航5度
                 condition_yaw(-1,5,1)
-                print(x,"turn left!")
-            elif x > 10: #当红色中心位于视野中心右侧，无人机右偏航5度
+                print(center1[0],"turn left!")
+            elif center1[0] > 380: #当红色中心位于视野中心右侧，无人机右偏航5度
                 condition_yaw(1,5,1)
-                print(x,"turn right!")
+                print(center1[0],"turn right!")
         if distance is not None and distance < 80:
-            while distance >= 70: #当距离过远，无人机靠近
+            if distance >= 70: #当距离过远，无人机靠近
                 send_local_ned_velocity(1, 0, 0)
                 print("distance:",distance,"Go ahead!")
-                if distance <= 50:
-                    break
-            while distance <= 45: #当距离过近，无人机远离
+            if distance <= 45: #当距离过近，无人机远离
                 send_local_ned_velocity(-1, 0, 0)
                 print("distance:",distance,"Go back!")
-                if distance >= 65:
-                    break
+        time.sleep(0.5)
 except KeyboardInterrupt: #按“esc”键结束主进程
     running=False #通知图像声波进程结束
     t_analyse_cam.join() #等待图像程序结束
-    t_analyse_distance.join() #等待声波程序结束
+    t_analyse_distance.join()
 
     print('Shut Down!')
     print('Return Home Now')

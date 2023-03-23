@@ -173,7 +173,7 @@ arm_and_takeoff(2) #Begin to take off to 2m
 print('Open Camera')
 while True: #Begin to open camera to analyse
     cam()
-    distanceStart()
+    distance=distanceStart()
     if center1 is not None and radius1 is not None:
         x = center1[0]-320
         y = center1[1]-240

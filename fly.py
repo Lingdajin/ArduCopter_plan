@@ -174,7 +174,7 @@ def analyse_distance(): #调用超声波模块进行分析
         global distance
         distance = distanceStart()
         time.sleep(0.5)
-def analyse_cam():
+def analyse_cam(): #调用摄像头进行分析
     while running:
         cam()
         time.sleep(0.5)
@@ -182,10 +182,10 @@ def analyse_cam():
 #代码运行部分
 t_takeoff = threading.Thread(target=arm_and_takeoff,args=(2,)) #创建起飞进程，高度2米
 t_analyse_cam = threading.Thread(target=analyse_cam) #创建图像分析进程
-t_analyse_distance = threading.Thread(target=analyse_distance)
+t_analyse_distance = threading.Thread(target=analyse_distance) #创建超声波分析进程
 t_takeoff.start() #启动起飞程序
 t_analyse_cam.start() #启动图像分析程序
-t_analyse_distance.start()
+t_analyse_distance.start() #启动超声波进程
 
 print('Open Camera')
 t_takeoff.join() #等待起飞程序结束
@@ -212,7 +212,7 @@ try:
 except KeyboardInterrupt: #按“ctrl+c”键结束主进程
     running=False #通知图像声波进程结束
     t_analyse_cam.join() #等待图像程序结束
-    t_analyse_distance.join()
+    t_analyse_distance.join() #等待超声波进程结束
 
     print('Shut Down!')
     print('Return Home Now')

@@ -8,29 +8,28 @@ from dronekit import connect, VehicleMode, LocationGlobalRelative
 from pymavlink import mavutil
 import RPi.GPIO as GPIO
 
+center1=None
+radius1=None
+#摄像机初始化
+lower_red=np.array([150,43,46])
+upper_red=np.array([179,255,255])
+cap = cv2.VideoCapture(0)
+cap.set(3,640)
+cap.set(4,480)
+#超声波初始化
+TRIG = 23 #触发信号引脚
+ECHO = 24 #回响信号引脚
+print('Distance Measurement In Progress')
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(TRIG,GPIO.OUT)
+GPIO.setup(ECHO,GPIO.IN)
+
+#dronekit-python初始化
+connection_string ='192.168.177.237:14552' 
+print('Connectingto vehicle on: %s' % connection_string) 
+vehicle =connect(connection_string, wait_ready=True,baud=921600) 
+
 #代码函数部分
-
-def dronekitInit(): #dronekit-python初始化
-    connection_string ='192.168.177.237:14552' 
-    print('Connectingto vehicle on: %s' % connection_string) 
-    vehicle =connect(connection_string, wait_ready=True,baud=921600) 
-
-def camInit(): #摄像头初始化
-    center1=None
-    radius1=None
-    lower_red=np.array([150,43,46])
-    upper_red=np.array([179,255,255])
-    cap = cv2.VideoCapture(0)
-    cap.set(3,640)
-    cap.set(4,480)
-
-def distanceInit(): #超声波初始化
-    TRIG = 23 #触发信号引脚
-    ECHO = 24 #回响信号引脚
-	print('Distance Measurement In Progress')
-	GPIO.setmode(GPIO.BCM)
-	GPIO.setup(TRIG,GPIO.OUT)
-	GPIO.setup(ECHO,GPIO.IN)
 
 def arm_and_takeoff(aTargetAltitude): #无人机起飞至指定高度
     # check pre-arm
@@ -169,9 +168,6 @@ def condition_yaw(direction,degrees, relative): #控制无人机航向
 
 #代码运行部分
 
-camInit()
-distanceInit()
-dronekitInit()s
 arm_and_takeoff(2) #Begin to take off to 2m
 
 print('Open Camera')

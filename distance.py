@@ -34,7 +34,7 @@ def distanceStart():
 	return distance
 
 try:
-        distanceInit()
+	distanceInit()
 	while True:
 		distance = distanceStart()
 		print("Distance:{}cm".format(distance))

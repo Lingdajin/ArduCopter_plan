@@ -29,7 +29,7 @@ GPIO.setup(TRIG,GPIO.OUT)
 GPIO.setup(ECHO,GPIO.IN)
 
 #dronekit-python初始化
-connection_string ='192.168.238.237:14552' 
+connection_string ='192.168.238.237:14552' #实际测试时改为pixhawk连接端口，现在连接到仿真
 print('Connectingto vehicle on: %s' % connection_string) 
 vehicle =connect(connection_string, wait_ready=True,baud=921600) 
 
@@ -126,7 +126,7 @@ def cam(): #摄像机识别
             #如果没有找到任何轮廓，则返回None,None
             return None,None
     else:
-        pass
+        return None,None
 
 def send_global_ned_velocity(vx, vy, vz): #全局为参考系控制无人机坐标
     msg = vehicle.message_factory.set_position_target_local_ned_encode(
@@ -139,16 +139,18 @@ def send_global_ned_velocity(vx, vy, vz): #全局为参考系控制无人机坐�
     vehicle.send_mavlink(msg)
     vehicle.flush()
  
-def send_local_ned_velocity(vx, vy, vz): #无人机为参考系控制坐标
+def send_local_ned_velocity(vx, vy, vz): #无人机为参考系控制速度
     msg = vehicle.message_factory.set_position_target_local_ned_encode(
-        0,0,0,mavutil.mavlink.MAV_FRAME_LOCAL_NED,
-        0b110111000111,
+        0,0,0,mavutil.mavlink.MAV_FRAME_BODY_NED,
+        0b0000111111000111,
         0,0,0,
         vx,vy,vz,
         0,0,0,
         0,0)
-    vehicle.send_mavlink(msg)
-    vehicle.flush()
+    
+    for x in range(0,1):    
+        vehicle.send_mavlink(msg)
+        time.sleep(0.2)
 
 
 def condition_yaw(direction,degrees, relative): #控制无人机航向
@@ -203,10 +205,10 @@ try:
                 print(center1[0],"turn right!")
         if distance is not None and distance < 80:
             if distance >= 70: #当距离过远，无人机靠近
-                send_local_ned_velocity(1, 0, 0)
+                send_local_ned_velocity(1, 0, 0,1)
                 print("distance:",distance,"Go ahead!")
             if distance <= 45: #当距离过近，无人机远离
-                send_local_ned_velocity(-1, 0, 0)
+                send_local_ned_velocity(-1, 0, 0,1)
                 print("distance:",distance,"Go back!")
         time.sleep(0.5)
 except KeyboardInterrupt: #按“ctrl+c”键结束主进程

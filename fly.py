@@ -10,13 +10,13 @@ import RPi.GPIO as GPIO
 import threading
 
 #全局变量
-center1=None
+center1=[None,None]
 radius1=None
 distance=None #距离的初始值
 running=True #控制图像声波进程的运行，为True时持续运行
 #摄像机初始化
-lower_red=np.array([150,43,46]) #识别红色
-upper_red=np.array([179,255,255])
+lower_red = np.array([0, 100, 100])  #red
+upper_red = np.array([10, 255, 255])
 cap = cv2.VideoCapture(0)
 cap.set(3,640)
 cap.set(4,480)
@@ -98,6 +98,8 @@ def cam(): #摄像机识别
     mask = cv2.GaussianBlur(mask,(3,3),0)
     res = cv2.bitwise_and(frame,frame,mask=mask)
     cnts = cv2.findContours(mask.copy(),cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)[-2]
+    global center1
+    global radius1
     if len(cnts) > 0:
         #找到面积最大的轮廓，并保存在c变量中。
         c=max(cnts,key=cv2.contourArea)
@@ -117,16 +119,19 @@ def cam(): #摄像机识别
             cv2.rectangle(frame,(x1,y1),(x1+w,y1+h),(0,255,0),3)
 
             #返回圆心坐标和半径
-            global center1
             center1 = center
-            global radius1
             radius1 = radius
 
         else:
             #如果没有找到任何轮廓，则返回None,None
-            return None,None
+            center1 = [None,None]
+            radius1 = None
     else:
-        return None,None
+        center1 = [None,None]
+        radius1 = None
+    #调试摄像头时使用，开启会浪费性能实时输出画面
+    # cv2.imshow("frame",frame)
+    time.sleep(0.1)
 
 def send_global_ned_velocity(vx, vy, vz): #全局为参考系控制无人机坐标
     msg = vehicle.message_factory.set_position_target_local_ned_encode(

@@ -209,7 +209,7 @@ try:
             elif center1[0] > 390: #当红色中心位于视野中心右侧，无人机右偏航5度
                 condition_yaw(1,5,1)
                 print(center1[0],"turn right!")
-        if distance is not None and distance < 80:
+        if distance is not None and distance < 95:
             if distance >= 70: #当距离过远，无人机靠近
                 send_local_ned_velocity(0.2, 0, 0,1)
                 print("distance:",distance,"Go ahead!")
@@ -223,7 +223,8 @@ except KeyboardInterrupt: #按“ctrl+c”键结束主进程
     t_analyse_distance.join() #等待超声波进程结束
 
     print('Shut Down!')
-    print('Return Home Now')
+    time.sleep(0.5)
+    print('Land Now')
     vehicle.mode =VehicleMode("LAND") #return home
     GPIO.cleanup()
     cap.release()

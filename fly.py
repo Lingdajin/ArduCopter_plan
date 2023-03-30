@@ -152,10 +152,11 @@ def send_local_ned_velocity(vx, vy, vz): #无人机为参考系控制速度
         vx,vy,vz,
         0,0,0,
         0,0)
-    
-    for x in range(0,1):    
-        vehicle.send_mavlink(msg)
-        time.sleep(0.2)
+    vehicle.send_mavlink(msg)
+    vehicle.flush()
+    #for x in range(0,1):    
+    #   vehicle.send_mavlink(msg)
+    #   time.sleep(0.2)
 
 
 def condition_yaw(direction,degrees, relative): #控制无人机航向
@@ -202,18 +203,18 @@ try:
         if center1 is not None and radius1 is not None:
             x = center1[0]-320
             y = center1[1]-240
-            if center1[0] < 160: #当红色中心位于视野中心左侧，无人机左偏航5度
+            if center1[0] < 250: #当红色中心位于视野中心左侧，无人机左偏航5度
                 condition_yaw(-1,5,1)
                 print(center1[0],"turn left!")
-            elif center1[0] > 380: #当红色中心位于视野中心右侧，无人机右偏航5度
+            elif center1[0] > 390: #当红色中心位于视野中心右侧，无人机右偏航5度
                 condition_yaw(1,5,1)
                 print(center1[0],"turn right!")
         if distance is not None and distance < 80:
             if distance >= 70: #当距离过远，无人机靠近
-                send_local_ned_velocity(1, 0, 0,1)
+                send_local_ned_velocity(0.2, 0, 0,1)
                 print("distance:",distance,"Go ahead!")
             if distance <= 45: #当距离过近，无人机远离
-                send_local_ned_velocity(-1, 0, 0,1)
+                send_local_ned_velocity(0.2, 0, 0,1)
                 print("distance:",distance,"Go back!")
         time.sleep(0.5)
 except KeyboardInterrupt: #按“ctrl+c”键结束主进程
@@ -223,7 +224,7 @@ except KeyboardInterrupt: #按“ctrl+c”键结束主进程
 
     print('Shut Down!')
     print('Return Home Now')
-    vehicle.mode =VehicleMode("RTL") #return home
+    vehicle.mode =VehicleMode("LAND") #return home
     GPIO.cleanup()
     cap.release()
     cv2.destroyAllWindows()

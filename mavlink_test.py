@@ -69,7 +69,7 @@ def send_local_ned_velocity(vx, vy, vz): #无人机为参考系控制速度
     
     for x in range(0,1):    
         vehicle.send_mavlink(msg)
-        time.sleep(0.2)
+        time.sleep(1)
 
 def condition_yaw(direction,degrees, relative): #控制无人机航向
 #direction needs to be 1 or -1,relative needs to be 1
@@ -115,9 +115,28 @@ vehicle.mav.command_long_send(
     0) # param7 (altitude)
 """
 arm_and_takeoff(2)
-time.sleep(2)
-send_local_ned_velocity(1,0,0)
-time.sleep(2)
+time.sleep(5)
+print("ahead")
+send_local_ned_velocity(0.05,0,0)
+time.sleep(5)
+print("right")
 condition_yaw(1,30,1)
-time.sleep(2)
-send_local_ned_velocity(1,0,0)
+time.sleep(5)
+print("ahead")
+send_local_ned_velocity(0.05,0,0)
+time.sleep(5)
+print("left")
+condition_yaw(-1,30,1)
+time.sleep(5)
+print("left")
+condition_yaw(-1,30,1)
+time.sleep(5)
+print("right")
+condition_yaw(1,30,1)
+time.sleep(5)
+print("back")
+send_local_ned_velocity(-0.05,0,0)
+time.sleep(20)
+print("LAND")
+vehicle.mode=VehicleMode("LAND")
+vehicle.close

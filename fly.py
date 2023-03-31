@@ -152,11 +152,11 @@ def send_local_ned_velocity(vx, vy, vz): #无人机为参考系控制速度
         vx,vy,vz,
         0,0,0,
         0,0)
-    vehicle.send_mavlink(msg)
-    vehicle.flush()
-    #for x in range(0,1):    
-    #   vehicle.send_mavlink(msg)
-    #   time.sleep(0.2)
+    #vehicle.send_mavlink(msg)
+    #vehicle.flush()
+    for x in range(0,1):    
+       vehicle.send_mavlink(msg)
+       time.sleep(1)
 
 
 def condition_yaw(direction,degrees, relative): #控制无人机航向
@@ -181,11 +181,10 @@ def analyse_distance(): #调用超声波模块进行分析
     while running:
         global distance
         distance = distanceStart()
-        time.sleep(1)
+        time.sleep(0.5)
 def analyse_cam(): #调用摄像头进行分析
     while running:
         cam()
-        time.sleep(0.5)
 
 #代码运行部分
 t_takeoff = threading.Thread(target=arm_and_takeoff,args=(2,)) #创建起飞进程，高度2米
@@ -204,18 +203,18 @@ try:
             x = center1[0]-320
             y = center1[1]-240
             if center1[0] < 250: #当红色中心位于视野中心左侧，无人机左偏航5度
-                condition_yaw(-1,5,1)
+                condition_yaw(-1,10,1)
                 print(center1[0],"turn left!")
             elif center1[0] > 390: #当红色中心位于视野中心右侧，无人机右偏航5度
-                condition_yaw(1,5,1)
+                condition_yaw(1,10,1)
                 print(center1[0],"turn right!")
         time.sleep(1)
         if distance is not None and distance < 95:
             if distance >= 70: #当距离过远，无人机靠近
-                send_local_ned_velocity(0.2, 0, 0)
+                send_local_ned_velocity(0.05, 0, 0)
                 print("distance:",distance,"Go ahead!")
             if distance <= 45: #当距离过近，无人机远离
-                send_local_ned_velocity(0.2, 0, 0)
+                send_local_ned_velocity(-0.05, 0, 0)
                 print("distance:",distance,"Go back!")
         time.sleep(1)
 except KeyboardInterrupt: #按“ctrl+c”键结束主进程

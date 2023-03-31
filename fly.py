@@ -181,7 +181,7 @@ def analyse_distance(): #调用超声波模块进行分析
     while running:
         global distance
         distance = distanceStart()
-        time.sleep(0.5)
+        time.sleep(1)
 def analyse_cam(): #调用摄像头进行分析
     while running:
         cam()
@@ -209,14 +209,15 @@ try:
             elif center1[0] > 390: #当红色中心位于视野中心右侧，无人机右偏航5度
                 condition_yaw(1,5,1)
                 print(center1[0],"turn right!")
+        time.sleep(1)
         if distance is not None and distance < 95:
             if distance >= 70: #当距离过远，无人机靠近
-                send_local_ned_velocity(0.2, 0, 0,1)
+                send_local_ned_velocity(0.2, 0, 0)
                 print("distance:",distance,"Go ahead!")
             if distance <= 45: #当距离过近，无人机远离
-                send_local_ned_velocity(0.2, 0, 0,1)
+                send_local_ned_velocity(0.2, 0, 0)
                 print("distance:",distance,"Go back!")
-        time.sleep(0.5)
+        time.sleep(1)
 except KeyboardInterrupt: #按“ctrl+c”键结束主进程
     running=False #通知图像声波进程结束
     t_analyse_cam.join() #等待图像程序结束

@@ -88,7 +88,36 @@ def condition_yaw(direction,degrees, relative): #控制无人机航向
         0,0,0)
     vehicle.send_mavlink(msg)
     vehicle.flush()
+"""
+heading=90
+relative=True
 
+vehicle.mav.command_long_send(
+    vehicle.target_system, vehicle.target_component,
+    mavutil.mavlink.MAV_CMD_CONDITION_YAW,
+    0, # confirmation
+    heading, # param1 (yaw angle)
+    0, # param2 (yaw speed)
+    1 if relative else 0, # param3 (direction: 1=clockwise, -1=counterclockwise)
+    0, # param4 (relative offset: 1=relative, 0=absolute)
+    0, 0, 0) # param5-7 (reserved)
+
+vehicle.mav.command_long_send(
+    vehicle.target_system, vehicle.target_component,
+    mavutil.mavlink.MAV_CMD_DO_SET_HOME,
+    0, # confirmation
+    1, # param1 (1=use current location, 0=use specified location)
+    0, # param2 (reserved)
+    0, # param3 (reserved)
+    0, # param4 (reserved)
+    0, # param5 (latitude)
+    0, # param6 (longitude)
+    0) # param7 (altitude)
+"""
 arm_and_takeoff(2)
+time.sleep(2)
 send_local_ned_velocity(1,0,0)
+time.sleep(2)
 condition_yaw(1,30,1)
+time.sleep(2)
+send_local_ned_velocity(1,0,0)
